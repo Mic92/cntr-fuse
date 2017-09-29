@@ -385,19 +385,24 @@ impl<'a> Request<'a> {
                 se.filesystem.bmap(self, self.header.nodeid, arg.blocksize, arg.block, self.reply());
             },
             FUSE_IOCTL => {
-                unimplemented!()
+                self.reply::<ReplyEmpty>().error(ENOSYS);
+                //debug!("IOCTL({}) ino {:#018x}, fh {}, flags {}, in_size {}, out_size {}", self.header.unique, self.header.nodeid, arg.fh, arg.in_size, arg.out_size);
+                //se.filesystem.ioctl(self, self.header.nodeid, arg.fh, arg.flags, arg.in_size, arg.out_size, self.reply());
             },
             FUSE_POLL => {
-                unimplemented!()
+                //let arg: &fuse_poll_in = data.fetch();
+                //debug!("IOCTL({}) ino {:#018x}, fh {}, flags {}, in_size {}, out_size {}", self.header.unique, self.header.nodeid, arg.fh, arg.in_size, arg.out_size);
+                //se.filesystem.poll(self, self.header.nodeid, arg.fh, arg.flags, arg.in_size, arg.out_size, self.reply());
+                self.reply::<ReplyEmpty>().error(ENOSYS);
             },
             FUSE_NOTIFY_REPLY => {
-                unimplemented!()
+                self.reply::<ReplyEmpty>().error(ENOSYS);
             },
             FUSE_BATCH_FORGET => {
-                unimplemented!()
+                self.reply::<ReplyEmpty>().error(ENOSYS);
             },
             FUSE_FALLOCATE => {
-                unimplemented!()
+                self.reply::<ReplyEmpty>().error(ENOSYS);
             },
             #[cfg(target_os = "macos")]
             FUSE_SETVOLNAME => {
@@ -419,7 +424,7 @@ impl<'a> Request<'a> {
                 se.filesystem.getxtimes(self, self.header.nodeid, self.reply());
             },
             CUSE_INIT => {
-                unimplemented!()
+                self.reply::<ReplyEmpty>().error(ENOSYS);
             },
         }
     }
