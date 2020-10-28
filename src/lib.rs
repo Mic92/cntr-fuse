@@ -46,6 +46,8 @@ pub enum FileType {
     Symlink,
     /// Unix domain socket (S_IFSOCK)
     Socket,
+    /// Unknown file type
+    Unknown
 }
 
 /// File attributes

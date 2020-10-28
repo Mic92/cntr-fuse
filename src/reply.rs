@@ -73,6 +73,7 @@ fn mode_from_kind_and_perm(kind: FileType, perm: u16) -> u32 {
         FileType::RegularFile => S_IFREG,
         FileType::Symlink => S_IFLNK,
         FileType::Socket => S_IFSOCK,
+        FileType::Unknown => 0,
     }) as u32 | perm as u32
 }
 
