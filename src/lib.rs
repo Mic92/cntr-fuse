@@ -415,6 +415,6 @@ pub fn mount<FS: Filesystem, P: AsRef<Path>>(filesystem: FS, mountpoint: P, opti
 /// to reference the mounted filesystem. If it's dropped, the filesystem will
 /// be unmounted.
 #[cfg(feature = "libfuse")]
-pub unsafe fn spawn_mount<'a, FS: Filesystem+Send+'a, P: AsRef<Path>>(filesystem: FS, mountpoint: P, options: &[&OsStr]) -> io::Result<BackgroundSession<'a>> {
+pub fn spawn_mount<'a, FS: 'static+Filesystem+Send+'a, P: AsRef<Path>>(filesystem: FS, mountpoint: P, options: &[&OsStr]) -> io::Result<BackgroundSession> {
     Session::new(filesystem, mountpoint.as_ref(), options, 0, 0).and_then(|se| se.spawn())
 }

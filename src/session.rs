@@ -11,7 +11,7 @@ use std::fmt;
 use std::ffi::OsStr;
 use std::os::unix::io::RawFd;
 use std::path::{PathBuf, Path};
-use thread_scoped::{scoped, JoinGuard};
+use std::thread::{self, JoinHandle};
 use libc::{EAGAIN, EINTR, ENODEV, ENOENT};
 use log::info;
 #[cfg(feature = "libfuse")]
@@ -132,9 +132,9 @@ impl<FS: Filesystem> Session<FS> {
     }
 }
 
-impl<'a, FS: Filesystem + Send + 'a> Session<FS> {
+impl<'a, FS: 'static + Filesystem + Send + 'a> Session<FS> {
     /// Run the session loop in a background thread
-    pub unsafe fn spawn(self) -> io::Result<BackgroundSession<'a>> {
+    pub fn spawn(self) -> io::Result<BackgroundSession> {
         BackgroundSession::new(self)
     }
 }
@@ -146,28 +146,28 @@ impl<FS: Filesystem> Drop for Session<FS> {
 }
 
 /// The background session data structure
-pub struct BackgroundSession<'a> {
+pub struct BackgroundSession {
     /// Path of the mounted filesystem
     pub mountpoint: PathBuf,
     /// Thread guard of the background session
-    pub guard: JoinGuard<'a, io::Result<()>>,
+    pub guard: JoinHandle<Result<(), std::io::Error>>,
 }
 
-impl<'a> BackgroundSession<'a> {
+impl<'a> BackgroundSession {
     /// Create a new background session for the given session by running its
     /// session loop in a background thread. If the returned handle is dropped,
     /// the filesystem is unmounted and the given session ends.
-    pub unsafe fn new<FS: Filesystem + Send + 'a>(se: Session<FS>) -> io::Result<BackgroundSession<'a>> {
+    pub fn new<FS: 'static + Filesystem + Send + 'a>(se: Session<FS>) -> io::Result<BackgroundSession> {
         let mountpoint = se.mountpoint().to_path_buf();
-        let guard = scoped(move || {
+        let child = thread::spawn(move || {
             let mut se = se;
             se.run()
         });
-        Ok(BackgroundSession { mountpoint: mountpoint, guard: guard })
+        Ok(BackgroundSession { mountpoint: mountpoint, guard: child })
     }
 }
 
-impl<'a> Drop for BackgroundSession<'a> {
+impl<'a> Drop for BackgroundSession {
     fn drop(&mut self) {
         info!("Unmounting {}", self.mountpoint.display());
         // Unmounting the filesystem will eventually end the session loop,
@@ -182,7 +182,7 @@ impl<'a> Drop for BackgroundSession<'a> {
 
 // replace with #[derive(Debug)] if Debug ever gets implemented for
 // thread_scoped::JoinGuard
-impl<'a> fmt::Debug for BackgroundSession<'a> {
+impl<'a> fmt::Debug for BackgroundSession {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(f, "BackgroundSession {{ mountpoint: {:?}, guard: JoinGuard<()> }}", self.mountpoint)
     }
