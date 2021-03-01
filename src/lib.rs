@@ -13,8 +13,8 @@ use std::path::Path;
 use std::time::SystemTime;
 use libc::{c_int, ENOSYS};
 
-pub use fuse_abi::FUSE_ROOT_ID;
-pub use fuse_abi::{fuse_forget_one, consts};
+pub use cntr_fuse_abi::FUSE_ROOT_ID;
+pub use cntr_fuse_abi::{fuse_forget_one, consts};
 pub use reply::{Reply, ReplyEmpty, ReplyData, ReplyEntry, ReplyAttr, ReplyOpen};
 pub use reply::{ReplyWrite, ReplyStatfs, ReplyCreate, ReplyLock, ReplyBmap, ReplyDirectory, ReplyDirectoryPlus};
 pub use reply::{ReplyXattr, ReplyIoctl, ReplyLseek, ReplyRead};
