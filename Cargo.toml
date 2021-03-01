@@ -1,7 +1,7 @@
 [package]
 name = "cntr-fuse"
 edition = "2018"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["Mic92"]
 description = "Rust library for filesystems in userspace (FUSE) (fork with functionality needed for the cntr project)"
 homepage = "https://github.com/Mic92/cntr-fuse"
@@ -19,8 +19,8 @@ cirrus-ci = { repository = "zargony/fuse-rs" }
 github = { repository = "zargony/fuse-rs" }
 
 [dependencies]
-fuse-abi = { path = "./fuse-abi", version = "=0.4.0-dev" }
-fuse-sys = { path = "./fuse-sys", version = "=0.4.0-dev" }
+fuse-abi = { path = "./fuse-abi", version = "=0.4.1-dev" }
+fuse-sys = { path = "./fuse-sys", version = "=0.4.1-dev" }
 libc = "0.2.86"
 log = "0.4.14"
 
