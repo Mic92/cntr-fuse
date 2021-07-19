@@ -25,7 +25,7 @@ libc = "0.2.51"
 log = "0.4.6"
 
 [dev-dependencies]
-env_logger = "0.8.3"
+env_logger = "0.9.0"
 
 [features]
 default = ["libfuse"]
