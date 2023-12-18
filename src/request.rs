@@ -93,17 +93,8 @@ fn mtime_to_timespec(arg: &fuse_setattr_in) -> UtimeSpec {
 
 impl<'a> Request<'a> {
     /// Create a new request from the given data
-    pub fn new(ch: ChannelSender, data: &'a [u8]) -> Option<Request<'a>> {
-        let request = match ll::Request::try_from(data) {
-            Ok(request) => request,
-            Err(err) => {
-                // FIXME: Reply with ENOSYS?
-                error!("{}", err);
-                return None;
-            }
-        };
-
-        Some(Self { ch, data, request})
+    pub fn new(ch: ChannelSender, data: &'a [u8]) -> Result<Request<'a>, ll::RequestError<'a>> {
+        ll::Request::try_from(data).map(|request| Self { ch, data, request })
     }
 
     /// Dispatch request to the given filesystem.

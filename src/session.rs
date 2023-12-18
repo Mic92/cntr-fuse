@@ -12,16 +12,19 @@ use std::ffi::OsStr;
 use std::os::unix::io::RawFd;
 use std::path::{PathBuf, Path};
 use std::thread::{self, JoinHandle};
-use libc::{EAGAIN, EINTR, ENODEV, ENOENT};
 use log::info;
 #[cfg(feature = "libfuse")]
 use log::error;
+use libc::{EAGAIN, EINTR, ENODEV, ENOENT, ENOSYS};
 
 #[cfg(feature = "libfuse")]
 use crate::channel;
 use crate::channel::Channel;
+use crate::ll::RequestError;
 use crate::request::Request;
 use crate::Filesystem;
+use crate::Reply;
+use crate::ReplyEmpty;
 
 /// The max size of write requests from the kernel. The absolute minimum is 4k,
 /// FUSE recommends at least 128k, max 16M. The FUSE default is 16M on macOS
@@ -110,9 +113,14 @@ impl<FS: Filesystem> Session<FS> {
             match self.ch.receive(&mut buffer) {
                 Ok(()) => match Request::new(self.ch.sender(), &buffer) {
                     // Dispatch request
-                    Some(req) => req.dispatch(self),
+                    Ok(req) => req.dispatch(self),
+                    Err(RequestError::UnknownOperation(header)) => {
+                        let reply = ReplyEmpty::new(header.unique, self.ch.sender());
+                        reply.error(ENOSYS);
+                        continue;
+                    }
                     // Quit loop on illegal request
-                    None => break,
+                    Err(_) => break,
                 },
                 Err(err) => match err.raw_os_error() {
                     // Operation interrupted. Accordingly to FUSE, this is safe to retry
