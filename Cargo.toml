@@ -1,7 +1,7 @@
 [package]
 name = "cntr-fuse"
 edition = "2018"
-version = "0.4.1"
+version = "0.4.2"
 authors = ["Jörg Thalheim <joerg@thalheim.io>"]
 description = "Rust library for filesystems in userspace (FUSE) (fork with functionality needed for the cntr project)"
 homepage = "https://github.com/Mic92/cntr-fuse"
