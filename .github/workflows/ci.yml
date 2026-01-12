@@ -25,7 +25,7 @@ jobs:
       - name: Display version information
         run: rustup --version; cargo --version; rustc --version
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Build everything
         uses: actions-rs/cargo@v1
         with:
